@@ -1,3 +1,4 @@
+
 Steps to run LAMP server:
 
 Now, create a project directory ~/docker/lamp (let’s say) and a html/ directory inside the project directory for keeping the website files (i.e. php, html, css, js etc.) as follows:
@@ -82,3 +83,4 @@ $ docker-compose ps
 Now, In port 5000 you can able to access LAMP server and in port 8080 you can able to see "Connected successfully"
 
 LAMP server setup was done.
+
