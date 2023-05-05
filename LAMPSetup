@@ -1,0 +1,85 @@
+Steps to run LAMP server:
+
+Now, create a project directory ~/docker/lamp (let’s say) and a html/ directory inside the project directory for keeping the website files (i.e. php, html, css, js etc.) as follows:
+
+$ mkdir -p ~/docker/lamp/html
+
+
+Now, navigate to the project directory ~/docker/lamp as follows:
+
+$ cd ~/docker/lamp
+
+
+Create a php.Dockerfile in the project directory ~/docker/lamp. This is a Dockerfile which enables mysqli and PDO php extensions in the php:7.4.3-apache image from Docker Hub and builds a custom Docker image from it.
+
+The contents of the php.Dockerfile is given below.
+
+FROM php:7.4.3-apache
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+Now, create a docker-compose.yaml file in the project directory ~/docker/lamp and type in the following lines in the docker-compose.yaml file.
+
+version: "3.7"
+services:
+  web-server:
+    build:
+      dockerfile: php.Dockerfile
+      context: .
+    restart: always
+    volumes:
+      - "./html/:/var/www/html/"
+    ports:
+      - "8080:80"
+  mysql-server:
+    image: mysql:8.0.19
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.0.1
+    restart: always
+    environment:
+      PMA_HOST: mysql-server
+      PMA_USER: root
+      PMA_PASSWORD: secret
+    ports:
+      - "5000:80"
+volumes:
+  mysql-data:
+
+
+
+Also, create a index.php file in the html/ directory for testing the LAMP server.
+
+The contents of the index.php file in my case,
+
+<?php
+$host = "mysql-server";
+$user = "root";
+$pass = "secret";
+$db = "app1";
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+    echo "Connected successfully";
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+
+Now in root folder, run docker-compose up -d
+
+To see how the ports are mapped, run the following command:
+
+$ docker-compose ps
+
+
+Now, In port 5000 you can able to access LAMP server and in port 8080 you can able to see "Connected successfully"
+
+LAMP server setup was done.
+
